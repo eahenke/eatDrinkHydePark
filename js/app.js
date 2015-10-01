@@ -9,6 +9,14 @@
 	var map;
 	var service;
 
+	//Trims a url of http/s:// and trailing slashes
+	function cleanUpUrl(url) {
+		url = url.replace(/^https?\:\/\//i, '');
+		url = url.replace(/\/$/, '');
+		return url;
+	}
+
+
 	//Filters for querying Google Places and sorting results
 	var filters = [
 		{
@@ -36,13 +44,15 @@
 		self.types = ko.observableArray(place.types);
 		self.price = ko.observable(place.price_level);
 		self.rating = ko.observable(place.rating);
+		self.url = ko.observable('');
 
 		self.infoWindowContent = ko.computed(function() {
 			var header = '<h3 class=info-title>' + self.name() + '</h3>';
 			var splitAddress = self.address().split(',');
 			var formattedAddress = '<p>' + splitAddress[0] + '</p><p>' + splitAddress[1] + ', IL</p>';
+			var url = '<a data-bind="url" href="' + self.url() + '">' + cleanUpUrl(self.url()) + '</a>';
 
-			return '<div class="info-content">' + header + formattedAddress + '</div>';
+			return '<div class="info-content">' + header + formattedAddress + url + '</div>';
 		});
 
 		//move this
@@ -62,10 +72,8 @@
 			var marker;
 
 			if(self.location()) {
-				// console.log(self);
 				marker = new google.maps.Marker({
 					position: self.location(),
-					// map: map,
 					title: self.name(),
 					icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
 				});
@@ -271,17 +279,49 @@
 			
 		};
 
-		//Open
-		self.openInfoWindow = function(place) {
-			infoWindow.setContent(currentPlace().infoWindowContent());
-			infoWindow.open(map, place.marker);
+		//Open the infoWindow with the info from the currentPlace
+		self.openInfoWindow = function() {
+
+			//Only call the API if the current place's url isn't set.
+			if(!self.currentPlace().url()) {
+				var request = {
+					placeId: self.currentPlace().id(),
+				}
+				//Query the API and call fillDetails, which sets the url if one.
+				service.getDetails(request, self.fillDetails);
+				
+				//If the place already has a URL, just open the window
+			} else {
+				infoWindow.setContent(self.currentPlace().infoWindowContent());
+				infoWindow.open(map, self.currentPlace().marker);				
+			}
 		};
+
+		//Processes Google Place Details result, sets the currentPlace's url
+		self.fillDetails = function(result, status) {
+			if(status == google.maps.places.PlacesServiceStatus.OK) {
+				
+				if(result.website) {
+					self.currentPlace().url(result.website);
+				} else {
+					self.currentPlace().url(' ');
+				}
+
+				//set infoWindow content and open
+				infoWindow.setContent(self.currentPlace().infoWindowContent());
+				infoWindow.open(map, self.currentPlace().marker);				
+
+			} else {
+				console.log('error ' + status);
+			}
+		}
 
 		//Initialize map and make Google Places request
 		self.initMap();
 		self.request();
 		
 	};
+
 
 	ko.applyBindings(new ViewModel());
 
