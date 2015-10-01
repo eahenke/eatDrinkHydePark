@@ -1,7 +1,7 @@
 //TODO - 
 //order by rating
 //add error handling should goodle map api be down or not connecting
-//show tooltip with info when list item clicked
+//open info window on click
 //data validation --in case of no pricing info or rating, put a message
 
 (function(){
@@ -9,6 +9,23 @@
 	var map;
 	var service;
 
+	//Filters for querying Google Places and sorting results
+	var filters = [
+		{
+			text: 'Eat',
+			googleType: ['restaurant'],
+			list: [],
+		},
+		{
+			text: 'Drink',
+			googleType: ['bar'],
+			list: [],
+		}
+	];
+
+
+	/* Represents a place that matches a type in the filters object (currently
+	 a restaurant or bar).  Takes a Google PlaceResult object */
 	var Place = function(place) {
 		var self = this;
 
@@ -32,6 +49,7 @@
 		self.highlightIcon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
 		self.defaultIcon = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 
+		//convert price level to $$$
 		self.price = (function(self) {
 			var price = '';
 			for(var i = 0; i < self.price(); i++ ) {
@@ -47,8 +65,8 @@
 				// console.log(self);
 				marker = new google.maps.Marker({
 					position: self.location(),
-					map: map,
-					title: self.name() + '' + self.types(),
+					// map: map,
+					title: self.name(),
 					icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
 				});
 			}
@@ -58,6 +76,10 @@
 
 		self.clearMarker = function() {
 			self.marker.setMap(null);
+		}
+
+		self.showMarker = function() {
+			self.marker.setMap(map);
 		}
 	}
 
@@ -74,27 +96,24 @@
 
 		var uChicagoCampus = new google.maps.LatLngBounds(
 			new google.maps.LatLng(41.787688, -87.606030),
-			new google.maps.LatLng(41.794887, -87.596653));
+			new google.maps.LatLng(41.794243, -87.596653));
 
 
-		//initialize defaults
 		var infoWindow = new google.maps.InfoWindow();
+		
+		//initialize defaults
 
-		//List of filters and their google type keyword counterparts
-		self.filterList = ko.observableArray([
-			{
-				text: 'Eat',
-				googleType: ['restaurant'],
-			},
-			{
-				text: 'Drink',
-				googleType: ['bar'],
-			}
-			]);
+		/* List of filters, filterList[i].text bound to '.filters'
+		   filterList[i].list bound to '.places */
+		self.filterList = ko.observableArray(filters);		
+		
+		//List of results from Google Places API. Not used in view
+		self.rawPlacesList = ko.observableArray([]);
 
+		//Bound to CSS class '.selected'
 		self.currentFilter = ko.observable(self.filterList()[0]);
-		self.placesList = ko.observableArray([]);
 		self.currentPlace = ko.observable();
+
 
 		/* Functions testing place eligibility.
 		   Each function must return true for a place to be eligible */
@@ -122,33 +141,55 @@
 			}
 		}
 
-		//Prepares a request for Google Places based on the filter passed and calls that request
-		self.request = function(filter) {
-			//Clear markers on request
-			self.placesList().forEach(function(place) {
-				place.clearMarker();
+		//Sets the selected filter as the current active filter and displays markers
+		self.setCurrentFilter = function(filter) {
+			
+			//clear markers from the previous currentFilter
+			self.currentFilter().list.forEach(function(place) {
+					place.clearMarker();
 			});
 
-			//Emply places list
-			self.placesList([]);
-
-			//Set filter as current
 			self.currentFilter(filter);
 
+			//show the markers for the current list
+			self.currentFilter().list.forEach(function(place) {
+				place.showMarker();
+			});
+
+		};
+
+		//Prepares a request for Google Places based on the filter passed and calls that request
+		self.request = function() {
+
+			//Emply places list
+			if(self.rawPlacesList.length) {
+				self.rawPlacesList([]);				
+			}
+
+			//Get all types from filters
+			var types = []
+			self.filterList().forEach(function(filter){
+				types = types.concat(filter.googleType);
+			});
+	
+			//format request object
 			var request = {
 				bounds: hydeParkBounds,
-				types: filter.googleType,
+				types: types,
 			};
 
+			//call Google
 			service = new google.maps.places.PlacesService(map);
 
-			//Results are passed to self.listPlaces()
-			service.nearbySearch(request, self.listPlaces);	
+			//Results are passed to self.processPlaces()
+			service.nearbySearch(request, self.processPlaces);	
 		};
+
 		
 		/* Iterates results from Google Places and fills an Observable Array with places
-		   that pass tests outlines in self.requirements, above */
-		self.listPlaces = function(results, status, pagination) {
+		   that pass tests outlines in self.requirements, above.
+		   Finally, calls sortPlaces to sort into lists based on type */
+		self.processPlaces = function(results, status, pagination) {
 			if(status = google.maps.places.PlacesServiceStatus.OK) {
 
 				results.forEach(function(result){
@@ -163,17 +204,37 @@
 
 					if(eligible) {
 						// console.log(result);
-						self.placesList.push(new Place(result));	
+						self.rawPlacesList.push(new Place(result));	
 					}
 				});
 
 				if(pagination.hasNextPage) {
 					pagination.nextPage();
 				}
+				self.sortPlaces();
+				self.setCurrentFilter(self.currentFilter());
+
 			} else {
 				console.log('Error: ' + status);
 			}
+
 		};
+
+		//Sorts places from rawPlacesList into lists based on type in the filter objects
+		self.sortPlaces = function() {
+			self.filterList().forEach(function(filter) {
+				self.rawPlacesList().forEach(function(place) {
+					for(var i = 0; i < filter.googleType.length; i++) {
+						var type = filter.googleType[i];
+						
+						//place has filter type and isn't a duplicate
+						if(place.types.indexOf(type) > -1 && filter.list.indexOf(place) == -1) {
+							filter.list.push(place);
+						}
+					}
+				});
+			});		
+		}
 
 		//Initialize map
 		self.initMap = function() {
@@ -190,16 +251,17 @@
 			});
 		};
 
-		//Sets the currently selected place and highlight's it's marker
-		self.setCurrent = function(place) {
-			self.highlightMarker(place);
-			self.currentPlace(place);
-			self.openInfoWindow(place);
+		//Sets the currently selected place and highlight's its marker
+		self.setCurrentPlace = function(place) {
+			if(place) {
+				self.highlightMarker(place);
+				self.currentPlace(place);
+				self.openInfoWindow();				
+			}
 		};
 
 		//Highlight current marker, unhighlights old
 		self.highlightMarker = function(place) {
-			console.log(place.marker.zIndex);
 			if(self.currentPlace() && place != self.currentPlace()) {
 				self.currentPlace().marker.setIcon(self.currentPlace().defaultIcon);
 				self.currentPlace().marker.setZIndex();				
@@ -209,13 +271,16 @@
 			
 		};
 
+		//Open
 		self.openInfoWindow = function(place) {
-			infoWindow.setContent(place.infoWindowContent());
+			infoWindow.setContent(currentPlace().infoWindowContent());
 			infoWindow.open(map, place.marker);
 		};
 
+		//Initialize map and make Google Places request
 		self.initMap();
-		self.request(self.currentFilter());
+		self.request();
+		
 	};
 
 	ko.applyBindings(new ViewModel());

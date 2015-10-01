@@ -13,13 +13,13 @@
 		<aside>
 			<header>
 				<h1>Eat Drink Hyde Park</h1>
-				<div data-bind="foreach: filterList">
-					<a data-bind="text: text, click: $parent.request, css: {selected: $parent.currentFilter() == $data}"></a>
+				<div class="filters" data-bind="foreach: filterList">
+					<a data-bind="text: text, click: $parent.setCurrentFilter, css: {selected: $parent.currentFilter() == $data}"></a>
 					
 				</div>
 			</header>
-			<ul class="places" data-bind="foreach: placesList">
-				<li data-bind="click: $parent.setCurrent, css: {selected: $parent.currentPlace() == $data}">
+			<ul class="places" data-bind="foreach: currentFilter().list">
+				<li data-bind="click: $root.setCurrentPlace, css: {selected: $root.currentPlace() == $data}">
 					<span class='name' data-bind="text: name"></span>
 					<span class='price' data-bind="text: price"></span>
 					<br/>
