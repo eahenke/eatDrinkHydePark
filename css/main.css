@@ -62,11 +62,12 @@ h1 {
 	width: 100%;
 }
 
-.info-content p {
+.info-content a, .info-content p {
+	color: #000;
 	margin: 0;
 }
 
-.info-content h3, h4 {
+.info-content h3 {
 	margin: 0;
 }
 
