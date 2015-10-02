@@ -1,9 +1,3 @@
-//TODO - 
-//order by rating
-//add error handling should goodle map api be down or not connecting
-//open info window on click
-//data validation --in case of no pricing info or rating, put a message
-
 (function(){
 
 	var map;
@@ -15,7 +9,6 @@
 		url = url.replace(/\/$/, '');
 		return url;
 	}
-
 
 	//Filters for querying Google Places and sorting results
 	var filters = [
@@ -30,7 +23,6 @@
 			list: [],
 		}
 	];
-
 
 	/* Represents a place that matches a type in the filters object (currently
 	 a restaurant or bar).  Takes a Google PlaceResult object */
@@ -55,7 +47,7 @@
 			return '<div class="info-content">' + header + formattedAddress + url + '</div>';
 		});
 
-		//move this
+		//move this - make a map object and store?
 		self.highlightIcon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
 		self.defaultIcon = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 
@@ -122,6 +114,10 @@
 		self.currentFilter = ko.observable(self.filterList()[0]);
 		self.currentPlace = ko.observable();
 
+		self.errorCode = ko.observable();
+		self.showError = ko.observable(false);
+
+
 
 		/* Functions testing place eligibility.
 		   Each function must return true for a place to be eligible */
@@ -147,6 +143,11 @@
 					return place.types.indexOf(type) == -1;
 				});
 			}
+		}
+
+		//hides error message
+		self.hideError = function() {
+			self.showError(false);
 		}
 
 		//Sets the selected filter as the current active filter and displays markers
@@ -219,11 +220,14 @@
 				if(pagination.hasNextPage) {
 					pagination.nextPage();
 				}
+
+				self.addMarkerListeners();
 				self.sortPlaces();
 				self.setCurrentFilter(self.currentFilter());
 
 			} else {
-				console.log('Error: ' + status);
+				self.errorCode(status);
+				self.showError(true);
 			}
 
 		};
@@ -241,12 +245,32 @@
 						}
 					}
 				});
+
+				//Sort each list by rating
+				filter.list.sort(function(a,b) {					
+					if(a.rating() > b.rating()) {						
+						return -1;
+					} else if(a.rating() == b.rating()) {
+						return 0;
+					} else {
+						return 1;
+					}
+				});
 			});		
+		}
+
+		//adds click listeners to each returned place's marker
+		self.addMarkerListeners = function() {
+			self.rawPlacesList().forEach(function(place) {
+				google.maps.event.addListener(place.marker, 'click', function () {
+              		self.setCurrentPlace(place);
+            	});
+			})
 		}
 
 		//Initialize map
 		self.initMap = function() {
-			var self = this;
+			// var self = this;
 			map = new google.maps.Map(document.getElementById('map'), {
 				center: hydeParkCenter,
 				zoom: 15,
@@ -254,13 +278,15 @@
 				//controls
 				mapTypeControl: false,
 				streetViewControl: false,
-				zoomControl: false
-
 			});
+
+			//request places
+			self.request();
 		};
 
 		//Sets the currently selected place and highlight's its marker
 		self.setCurrentPlace = function(place) {
+
 			if(place) {
 				self.highlightMarker(place);
 				self.currentPlace(place);
@@ -312,18 +338,15 @@
 				infoWindow.open(map, self.currentPlace().marker);				
 
 			} else {
-				console.log('error ' + status);
+				self.errorCode(status);
+				self.showError(true);
 			}
 		}
 
 		//Initialize map and make Google Places request
-		self.initMap();
-		self.request();
-		
+		google.maps.event.addDomListener(window, 'load', self.initMap);		
 	};
 
-
 	ko.applyBindings(new ViewModel());
-
 
 })();
