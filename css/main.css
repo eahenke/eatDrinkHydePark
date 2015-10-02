@@ -11,7 +11,6 @@ html, body {
 }
 
 a {
-	color: #fff;
 	cursor: pointer;
 	font-size: 1.1em;
 	
@@ -43,6 +42,7 @@ header div {
 
 header a {	
 	padding: 1em;
+	color: #fff;
 }
 
 h1 {
@@ -60,6 +60,45 @@ h1 {
 #map {
 	height: 100%;
 	width: 100%;
+}
+
+.hidden {
+	display: none;
+}
+
+.error {
+	/*display: none;*/
+	position: absolute;
+	top: 40%; /*Slightly higher than center preferred */
+	left:50%;
+	transform: translate(-50%, -50%);
+	background-color: #fff;
+	border: 2px solid #A8DAF7;
+	border-radius: 10px;
+	text-align: center;
+	width: 350px;
+	height: 150px;
+	z-index: 2;
+}
+
+.error p {
+	margin-top: 1.5em;
+	padding-left: 1em;
+	padding-right: 1em;
+}
+
+.error-status {
+	font-weight: bold;
+}
+
+.error .close {
+	position: absolute;
+	top: 0;
+	right: 0;
+	padding: 5px;
+	font-weight: bold;
+	cursor: pointer;
+	color: bold;
 }
 
 .info-content a, .info-content p {

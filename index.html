@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Map Project</title>
+	<title>Eat Drink Hyde Park</title>
+	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name = "author" content="Eric Henke" />
 	<!-- fonts -->
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 	<!-- stylesheets -->
@@ -29,6 +31,16 @@
 			</ul>
 		</aside>
 		<div id="map"></div>
+
+		<div class="error hidden" data-bind="css: { hidden: !showError() }">
+			<h3>Whoops!</h3>
+			<p>There was a problem.	Error code: 
+				<span class="error-status" data-bind="text: errorCode"></span>. 
+				<br />
+				Try again later.
+			</p>
+			<a class='close' data-bind="click: hideError">X</a>
+		</div>
 
 
 	</div>
