@@ -5,6 +5,8 @@
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name = "author" content="Eric Henke" />
+
+	 <link rel="icon" type="image/png" href="images/eatdrink.png" />
 	<!-- fonts -->
 	<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
 	<!-- stylesheets -->
@@ -14,7 +16,7 @@
 	<div class='page-wrap'>
 		<aside>
 			<header>
-				<h1>Eat Drink Hyde Park</h1>
+				<h1>Eat Drink <span>Hyde Park</span></h1>
 				<div class="filters" data-bind="foreach: filterList">
 					<a data-bind="text: text, click: $parent.setCurrentFilter, css: {selected: $parent.currentFilter() == $data}"></a>
 					

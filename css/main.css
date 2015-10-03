@@ -52,6 +52,10 @@ h1 {
 	font-size: 1.8em;
 }
 
+h1 span {
+	color: orange;
+}
+
 .page-wrap {
 	width: 100%;
 	height: 100%;
