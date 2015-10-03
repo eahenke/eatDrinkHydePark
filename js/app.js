@@ -1,3 +1,5 @@
+//todo - favicon
+
 (function(){
 
 	var map;
@@ -24,6 +26,12 @@
 		}
 	];
 
+	//Object reperesenting sources for different marker icons used
+	var markerIcons = {
+		normal: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+		highlight: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+	}
+
 	/* Represents a place that matches a type in the filters object (currently
 	 a restaurant or bar).  Takes a Google PlaceResult object */
 	var Place = function(place) {
@@ -46,10 +54,6 @@
 
 			return '<div class="info-content">' + header + formattedAddress + url + '</div>';
 		});
-
-		//move this - make a map object and store?
-		self.highlightIcon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-		self.defaultIcon = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
 
 		//convert price level to $$$
 		self.price = (function(self) {
@@ -114,9 +118,11 @@
 		self.currentFilter = ko.observable(self.filterList()[0]);
 		self.currentPlace = ko.observable();
 
+		//Bound to '.error-status'
 		self.errorCode = ko.observable();
-		self.showError = ko.observable(false);
 
+		//Determines visibility of '.error'
+		self.showError = ko.observable(false);
 
 
 		/* Functions testing place eligibility.
@@ -297,10 +303,10 @@
 		//Highlight current marker, unhighlights old
 		self.highlightMarker = function(place) {
 			if(self.currentPlace() && place != self.currentPlace()) {
-				self.currentPlace().marker.setIcon(self.currentPlace().defaultIcon);
+				self.currentPlace().marker.setIcon(markerIcons.normal);
 				self.currentPlace().marker.setZIndex();				
 			}
-			place.marker.setIcon(place.highlightIcon);			
+			place.marker.setIcon(markerIcons.highlight);			
 			place.marker.setZIndex(google.maps.Marker.MAX_ZINDEX + 1);
 			
 		};
