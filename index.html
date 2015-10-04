@@ -24,7 +24,7 @@
 				</div>
 			</header>
 			<ul class="places" data-bind="foreach: currentFilter().list">
-				<li data-bind="event: {click: $parent.setCurrentPlace, touchend: $parent.setCurrentPlace}, css: {selected: $root.currentPlace() == $data}">
+				<li class="place-item" data-bind="event: {click: $parent.setCurrentPlace}, css: {selected: $root.currentPlace() == $data}">
 					<span class='name' data-bind="text: name"></span>
 					<span class='price' data-bind="text: price"></span>
 					<br/>

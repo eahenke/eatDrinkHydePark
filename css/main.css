@@ -1,59 +1,19 @@
-*, *:before, *:after {
-  box-sizing: border-box;
+html {
+	box-sizing: border-box;
 }
 
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/*Common elements, classes*/
 html, body {
+	position: relative;
 	height: 100%;
 	margin: 0;
 	padding: 0;
-	position: relative;
+	font-size: 1em;
 	font-family: 'Open Sans', sans-serif;
-}
-
-a {
-	cursor: pointer;
-	font-size: 1.1em;
-	
-}
-
-aside {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 25%;
-	height: 100%;
-	z-index: 1;
-	background-color: rgba(0, 0, 0, 0.6);
-	overflow: auto;
-}
-
-header {
-	padding-top: 0.5em;
-	padding-bottom: 0.5em;
-	width: 100%;
-	background-color: rgba(0, 0, 0, 0.8);
-}
-
-header div {
-	margin-left: auto;
-	margin-right: auto;
-	text-align: center;
-}
-
-header a {	
-	padding: 1em;
-	color: #fff;
-}
-
-h1 {
-	color: #fff;
-	text-align: center;
-	word-spacing: 0.15em;
-	font-size: 1.8em;
-}
-
-h1 span {
-	color: orange;
 }
 
 .wrap {
@@ -61,97 +21,141 @@ h1 span {
 	height: 100%;
 }
 
-#map {
-	height: 100%;
-	width: 100%;
+a {
+	cursor: pointer;
+}
+
+a.selected, li:hover .name, li.selected .name {
+	color: orange;
 }
 
 .hidden {
 	display: none;
 }
 
+/* Map */
+#map {
+	height: 100%;
+	width: 100%;
+}
+
+/*Sidebar*/
+aside {
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	width: 25%;
+	height: 100%;
+	color: #fff;
+	background-color: rgba(0, 0, 0, 0.6);
+	font-size: 1.1rem;
+	overflow: auto;
+}
+
+header {
+	width: 100%;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+	background-color: rgba(0, 0, 0, 0.8);
+}
+
+h1 {
+	text-align: center;
+	font-size: 1.8rem;
+	word-spacing: 0.15rem;
+}
+
+h1 > span {
+	color: orange;
+}
+
+.filters {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.filters > a {	
+	padding: 1rem;
+	font-size: 1.2rem;
+}
+
+/* List */
+.places {
+	padding: 0;
+	margin: 0;
+}
+
+.place-item {
+	width: 100%;
+	margin: 0;
+	padding: 0.5rem;
+	list-style: none;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.place-item:nth-child(odd) {
+	background-color: rgba(0, 0, 0, 0.6);
+}
+
+.place-item:nth-child(even) {
+	background-color: rgba(0, 0, 0, 0.7);
+}
+
+.name, .rating {
+	float: left;
+	
+}
+
+.price {
+	float: right;
+}
+
+
+/* Error Message */
 .error {
 	position: absolute;
 	top: 40%; /*Slightly higher than center preferred */
 	left:50%;
 	-webkit-transform: translate(-50%, -50%);
-	background-color: #fff;
-	border: 2px solid #A8DAF7;
-	border-radius: 10px;
-	text-align: center;
+	z-index: 2;
+	
 	width: 350px;
 	height: 150px;
-	z-index: 2;
+
+	background-color: #fff;
+	border: 2px solid #A8DAF7;
+	border-radius: 10px;	
+	text-align: center;
 }
 
-.error p {
-	margin-top: 1.5em;
-	padding-left: 1em;
-	padding-right: 1em;
+.error > p {
+	margin-top: 1.5rem;
+	padding-left: 1rem;
+	padding-right: 1rem;
 }
 
 .error-status {
 	font-weight: bold;
 }
 
-.error .close {
+.close {
 	position: absolute;
 	top: 0;
 	right: 0;
 	padding: 5px;
 	font-weight: bold;
 	cursor: pointer;
-	color: bold;
 }
 
-.info-content a, .info-content p {
-	color: #000;
+/* Info Window*/
+.info-content > a, .info-content > p, .info-content > h3 {
 	margin: 0;
 }
 
-.info-content h3 {
-	margin: 0;
-}
-
-a.selected, .places li:hover .name, .places li.selected .name {
-	color: orange;
-}
-
-.places {
-	padding: 0;
-	font-size: 1.1em;
-	margin: 0;
-}
-
-.places li {
-	width: 100%;
-	list-style: none;
-	color: #fff;
-	position: relative;
-	padding: 0.5em;
-	overflow: hidden;
-	margin: 0;
-	cursor: pointer;
-}
-
-
-.places li:nth-child(odd) {
-	background-color: rgba(0, 0, 0, 0.6);
-}
-
-.places li:nth-child(even) {
-	background-color: rgba(0, 0, 0, 0.7);
-}
-
-.places li .name, .places li .rating {
-	float: left;
-	
-}
-
-.places li .price {
-	float: right;
-}
-
+/* Mobile */
 @media screen and (max-width: 800px) {
 
 	/*On mobile the aside won't work with bottom: 0 for some reason, so use top: 60
@@ -160,12 +164,11 @@ a.selected, .places li:hover .name, .places li.selected .name {
 	aside {
 		position: absolute;
 		top: 60%;		
+		z-index: 1;
 		height: 40%;
 		width: 100%;
-		z-index: 1;
 		background-color: rgba(0, 0, 0, 0.6);
-		overflow: auto;
-		
+		overflow: auto;		
 	}
 
 	#map {
@@ -181,11 +184,11 @@ a.selected, .places li:hover .name, .places li.selected .name {
 		height: 25%;	
 	}
 
-	.error h3 {
-		margin-bottom: 0.25em;
+	.error > h3 {
+		margin-bottom: 0.25rem;
 	}
 
-	.error p {
+	.error > p {
 		margin-top: 0;
 	}
 }
