@@ -3,7 +3,8 @@
 <head>
 	<title>Eat Drink Hyde Park</title>
 	<meta charset="UTF-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<meta name = "author" content="Eric Henke" />
 
 	 <link rel="icon" type="image/png" href="images/eatdrink.png" />
@@ -13,7 +14,7 @@
 	<link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
-	<div class='page-wrap'>
+	<div class='wrap'>
 		<aside>
 			<header>
 				<h1>Eat Drink <span>Hyde Park</span></h1>
@@ -23,7 +24,7 @@
 				</div>
 			</header>
 			<ul class="places" data-bind="foreach: currentFilter().list">
-				<li data-bind="click: $root.setCurrentPlace, css: {selected: $root.currentPlace() == $data}">
+				<li data-bind="event: {click: $parent.setCurrentPlace, touchend: $parent.setCurrentPlace}, css: {selected: $root.currentPlace() == $data}">
 					<span class='name' data-bind="text: name"></span>
 					<span class='price' data-bind="text: price"></span>
 					<br/>
@@ -45,7 +46,6 @@
 		</div>
 	</div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBJdMCsjvpHGyg4PVTBRAq37eSScfral_I&libraries=places"
   type="text/javascript"></script>
   <script type="text/javascript" src='js/lib/knockout-3.3.0.js'></script>
