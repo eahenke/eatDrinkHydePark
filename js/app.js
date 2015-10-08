@@ -1,5 +1,3 @@
-//todo - favicon
-
 (function(){
 
 	var map;
@@ -87,7 +85,7 @@
 		}
 	}
 
-
+	//Main ViewModel
 	var ViewModel = function() {
 		var self = this;
 
